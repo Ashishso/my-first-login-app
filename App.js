@@ -1,21 +1,64 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import  React,{useEffect, useState, useMemo} from 'react';
+import {View, ActivityIndicator } from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import {createDrawerNavigator} from '@react-navigation/drawer';
+import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';     
+import MainTabScreen from './Screen/MainTabScreen';
+import RootStackScreen from './Screen/RootStackScreen';
+import {AuthContext}  from './Components/context';
+ 
+const Stack = createNativeStackNavigator();
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+const App = () => {
+  
+  const [isLoading, setIsLoading]  = useState(true);
+  const [userToken, setUserToken] = useState(null);
+
+
+ const authContext =  useMemo(() => ({
+    signIn: () => {
+      setUserToken('ashish');
+      setIsLoading(false);
+    },
+     signOut: () => {
+       setUserToken(null);
+      setIsLoading(false);
+     },
+      signUp: () => {
+        setUserToken('ashish');
+        setIsLoading(false);
+      },
+ }));
+
+useEffect(() => {
+   setTimeout(() => {
+       setIsLoading(false);
+   }, 1000);     
+    
+}, [])
+
+if(isLoading) {
+    <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
+          <ActivityIndicator  color= "#009387" size="large" />
     </View>
-  );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+return (
+    <AuthContext.provider value={ authContext }>   
+      <NavigationContainer>
+      { userToken !==   null ? (  
+          <Stack.Navigator initialRouteName="Home" screenOptions={{ headerStyle: { backgroundColor: '#41B3A3'} }}>       
+                 <Stack.Screen name="Home" component={MainTabScreen} />      
+         </Stack.Navigator>     
+        )   
+        :   
+      <RootStackScreen />   
+        }    
+       </NavigationContainer> 
+     </AuthContext.provider>
+    )
+}
+
+export default App; 
